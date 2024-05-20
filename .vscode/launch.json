@@ -2,20 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "java",
-            "name": "MeasureExecTime",
-            "request": "launch",
-            "mainClass": "MeasureExecTime",
-            "projectName": "TestArea_dd2162f"
-        },
-        {
-            "type": "java",
-            "name": "MeasureExecTime",
-            "request": "launch",
-            "mainClass": "MeasureExecTime",
-            "projectName": "TestArea_c3a07cee"
-        },
-        {
             "name": "C: Run without Debugging",
             "type": "cppdbg",
             "request": "launch",
@@ -124,18 +110,8 @@
             ]
         },
         {
-            "name": "Go: Run without Debugging",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "cwd": "${fileDirname}",
-            "program": "${fileDirname}\\${fileBasename}",
-            "args": [],
-            "console": "externalTerminal"
-        },
-        {
             "name": "Python: Run without Debugging",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "${fileDirname}",
             "program": "${fileDirname}\\${fileBasename}",

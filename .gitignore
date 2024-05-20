@@ -1,4 +1,9 @@
+# Assignment files
 *.zip
-*.pdf
 *.hwp
+
+# Outputs
 *.exe
+
+# Notices
+*.pdf
