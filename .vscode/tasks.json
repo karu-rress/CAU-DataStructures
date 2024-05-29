@@ -23,6 +23,7 @@
                 "-std=c11",
                 "-g3",
                 "${fileBasename}",
+                "sortings.c",
                 "-o",
                 "${fileBasenameNoExtension}.exe"
             ],
