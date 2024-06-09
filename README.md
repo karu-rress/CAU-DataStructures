@@ -1,4 +1,4 @@
-# Data Structures
+# [CAU] Data Structures
 
 중앙대학교 소프트웨어학부 2학년 전공필수 '자료구조' 과제 파일입니다.
 
