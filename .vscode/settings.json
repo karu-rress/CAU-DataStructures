@@ -21,6 +21,8 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "sortings.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "array": "c",
+        "*.ipp": "c"
     }
 }
