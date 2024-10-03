@@ -1,42 +1,46 @@
 /**
  * 과제 6-(3) 해시/탐색트리
- * 
+ *
  * B-트리 만들기
  */
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #define MAX_LENGTH 100
-#define MAX_KEYS 4
-#define MIN_KEYS (MAX_KEYS / 2)
-#define MAX_CHILDREN (MAX_KEYS + 1)
+#define T 3
 
 // Convert normal tree to B-tree
 
 typedef struct tagNode {
-    int key_count;
-    char key[MAX_KEYS][MAX_LENGTH];
-    char value[MAX_KEYS][MAX_LENGTH];
-    struct tagNode *children[MAX_CHILDREN];
+    int n;
+    char key[100][MAX_LENGTH];
+    char value[100][MAX_LENGTH];
+    struct tagNode* children[100];
     bool leaf;
 } node;
 
-void make_tree(node **proot);
-int get_height(const node *root);
-int count_nodes(const node *root);
-const node *search(const node *restrict root, const char *restrict key);
+node* create_node(void);
+void split_child(node* x, int index);
+void insert(node** proot, const char* key, const char* value);
+void insert_key(node* x, const char* key, const char* value);
+void search(const node* root, const char* key, const node** result, int* index);
 
-int main(void) {
+void make_tree(node** proot);
+int get_height(const node* root);
+int count_nodes(const node* root);
+
+int main(void)
+{
     // 파일 읽기 및 트리 생성
-    node *root = NULL;
+    node* root = NULL;
     make_tree(&root);
-    
+
     int height = get_height(root);
-    int count = count_nodes(root);
+    int count  = count_nodes(root);
     printf("트리의 전체 높이는 %d입니다. 트리의 노드 수는 %d개 입니다.\n\n", height, count);
 
     char input[MAX_LENGTH] = "";
@@ -47,7 +51,9 @@ int main(void) {
         if (strcmp(input, "_EXIT_") == 0)
             return 0;
 
-        const node *result = search(root, input);
+        const node* result;
+        int index;
+        search(root, input, &result, &index);
 
         if (result == NULL) // 검색 결과가 없는가?
             printf("단어를 찾을 수 없습니다.\n");
@@ -58,96 +64,174 @@ int main(void) {
     return 0;
 }
 
-void make_tree(node **proot) {
-    FILE *fp = fopen("randdict_utf8.txt", "r");
+node* create_node(void)
+{
+    node* new_node = (node*)malloc(sizeof(node));
+    memset(new_node, 0, sizeof(node));
+
+    return new_node;
+}
+
+void split_child(node* x, int index)
+{
+    node* z = create_node();
+    node* y = x->children[index];
+
+    z->leaf = y->leaf;
+    z->n    = T - 1;
+
+    for (int j = 0; j < T - 1; j++) {
+        strcpy(z->key[j], y->key[j + T]);
+        strcpy(z->value[j], y->value[j + T]);
+    }
+
+    if (!y->leaf) {
+        for (int j = 0; j < T; j++) {
+            z->children[j] = y->children[j + T];
+        }
+    }
+
+    y->n = T - 1;
+
+    for (int j = x->n + 1; j >= index + 1; j--) {
+        x->children[j] = x->children[j - 1];
+    }
+
+    x->children[index + 1] = z;
+
+    for (int j = x->n; j > index; j--) {
+        strcpy(x->key[j], x->key[j - 1]);
+        strcpy(x->value[j], x->value[j - 1]);
+    }
+
+    strcpy(x->key[index], y->key[T]);
+    strcpy(x->value[index], y->value[T]);
+    x->n++;
+}
+
+void insert(node** proot, const char* key, const char* value)
+{
+    if (*proot == NULL) {
+        node* new_node = create_node();
+
+        new_node->n = 1;
+        strcpy(new_node->key[0], key);
+        strcpy(new_node->value[0], value);
+        new_node->leaf = true;
+
+        *proot = new_node;
+    } else {
+        node* root = *proot;
+
+        if (root->n == 2 * T - 1) {
+            node* new_node = create_node();
+
+            *proot                = new_node;
+            new_node->leaf        = false;
+            new_node->n           = 0;
+            new_node->children[0] = root;
+
+            split_child(new_node, 0);
+            insert_key(new_node, key, value);
+
+        } else {
+            insert_key(root, key, value);
+        }
+    }
+}
+
+void insert_key(node* x, const char* key, const char* value)
+{
+    int i = x->n - 1;
+
+    if (x->leaf) {
+        for (; i >= 0 && strcmp(key, x->key[i]) < 0; i--) {
+            strcpy(x->key[i + 1], x->key[i]);
+            strcpy(x->value[i + 1], x->value[i]);
+        }
+
+        strcpy(x->key[i + 1], key);
+        strcpy(x->value[i + 1], value);
+        x->n++;
+    } else {
+        while (i >= 0 && strcmp(key, x->key[i]) < 0) {
+            i--;
+        }
+
+        i++;
+        if (x->children[i]->n == 2 * T - 1) {
+            split_child(x, i);
+
+            if (strcmp(key, x->key[i]) > 0)
+                i++;
+        }
+
+        insert_key(x->children[i], key, value);
+    }
+}
+
+void search(const node* root, const char* key, const node** result, int* index)
+{
+    *result = NULL;
+    *index  = -1;
+
+    if (root == NULL)
+        return;
+
+    int i = 0;
+    while (i < root->n && strcmp(key, root->key[i]) > 0) {
+        i++;
+    }
+
+    if (i < root->n && strcmp(key, root->key[i]) == 0) {
+        *result = root;
+        *index  = i;
+        return;
+    }
+
+    if (root->leaf) {
+        return;
+    }
+
+    search(root->children[i], key, result, index);
+}
+
+void make_tree(node** proot)
+{
+    FILE* fp                  = fopen("randdict_utf8.TXT", "r");
     char line[MAX_LENGTH * 2] = "";
-    int cnt = 0;
+    int cnt                   = 0;
 
     // EOF 전까지 읽음
     while (fgets(line, sizeof(line), fp)) {
         line[strcspn(line, "\n")] = '\0'; // '\n' 제거
-        char *str1 = strtok(line, " : ");
-        char *str2 = strtok(NULL, " : ");
+        char* str1                = strtok(line, " : ");
+        char* str2                = strtok(NULL, " : ");
 
-        // 루트가 없다면 루트에 삽입
-        if (*proot == NULL) {
-            node *new_node = (node *)malloc(sizeof(node));
-            memset(new_node, 0, sizeof(node));
-
-            new_node->key_count = 1;
-            strcpy(new_node->key[0], str1);
-            strcpy(new_node->value[0], str2 ? str2 : "");
-            new_node->leaf = true;
-
-            *proot = new_node;
-            cnt++;
-            continue;
-        }
-
-        // 노드를 따라가며 삽입
-        
-
-
-
-        node *current = *proot; // 루트부터 시작하여
-        while (1) {
-            if (strcmp(new_node->key, current->key) < 0) { // 앞선 단어면 왼쪽으로
-                if (current->left == NULL) { // 탐색이 실패한 곳이 저장 위치
-                    current->left = new_node;
-                    break;
-                }
-                else // 왼쪽으로 한 칸 전진
-                    current = current->left;
-            }
-            else { // 뒤의 단어면 오른쪽으로
-                if (current->right == NULL) { 
-                    current->right = new_node;
-                    break;
-                }
-                else // 오른쪽으로 한 칸 전진
-                    current = current->right;
-            }
-        }
+        insert(proot, str1, str2);
     }
     fclose(fp);
     printf("사전 파일을 모두 읽었습니다. %d개의 단어가 있습니다.\n", cnt);
 }
 
-int get_height(const node *root) {
+int get_height(const node* root)
+{
     if (root == NULL)
         return 0;
 
-    // 서브트리의 크기 계산 (재귀)
-    int left = get_height(root->left);
-    int right = get_height(root->right);
-
-    // 더 큰 서브리트의 높이에 현재 노드를 더하여 반환
-    return (left > right) ? left + 1 : right + 1;
+    // 어차피 모든 서브트리의 높이는 같으므로 왼쪽 서브트리만 계산
+    return get_height(root->children[0]) + 1;
 }
 
-int count_nodes(const node *root) {
-    if (root == NULL)
-        return 0;
-
-    // 서브트리의 크기 계산 (재귀)
-    int left = count_nodes(root->left);
-    int right = count_nodes(root->right);
-
-    // 각 서브트리의 크기에 현재 노드를 더하여 반환
-    return left + right + 1;
-}
-
-const node *search(const node *restrict root, const char *restrict key) {
-    if (root == NULL) // 노드가 없으면 NULL 반환
-        return NULL;
-
-    int cmp = strcmp(root->key, key);
-    if (cmp == 0) // 찾던 키라면 현재 노드를 반환
-        return root;
-
-    if (cmp > 0) // 키가 더 작으면 왼쪽으로
-        return search(root->left, key);
-
-    else // 나머지(키가 크면)인 경우 오른쪽으로 이동
-        return search(root->right, key);
+int count_nodes(const node* root)
+{
+    if (root != NULL) {
+        // 재귀적으로 모든 서브트리의 크기를 계산
+        int count = 1;
+        for (int i = 0; i < root->n; i++) {
+            count += count_nodes(root->children[i]);
+        }
+        return count;
+    }
+    return 0;
 }

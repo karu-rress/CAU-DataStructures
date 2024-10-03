@@ -26,9 +26,9 @@
             ],
             "compilerPath": "/usr/bin/gcc",
             "compilerArgs": [
-                "-m32"
+                "-m64"
             ],
-            "intelliSenseMode": "linux-gcc-x86",
+            "intelliSenseMode": "linux-gcc-x64",
             "includePath": [
                 "/usr/include",
                 "${default}"

@@ -5,7 +5,7 @@
             "name": "C: Run without Debugging",
             "type": "cppdbg",
             "request": "launch",
-            "preLaunchTask": "build C file",
+            "preLaunchTask": "build C file (Windows)",
             "cwd": "${fileDirname}",
             "program": "C:\\Windows\\System32\\cmd.exe",
             "args": [
@@ -24,7 +24,7 @@
             "name": "C: Run with Debugging",
             "type": "cppdbg",
             "request": "launch",
-            "preLaunchTask": "build C file",
+            "preLaunchTask": "build C file (Windows)",
             "cwd": "${fileDirname}",
             "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
             "args": [],
@@ -56,18 +56,18 @@
             ]
         },
         {
-            "name": "C++: Run without Debugging",
+            "name": "C: Run without Debugging (Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "preLaunchTask": "build C++ file",
+            "preLaunchTask": "build C file (Linux)",
             "cwd": "${fileDirname}",
-            "program": "C:\\Windows\\System32\\cmd.exe",
+            "program": "/bin/zsh",
             "args": [
-                "/k",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "&",
+                "-c",
+                "${fileDirname}\\${fileBasenameNoExtension}",
+                ";",
                 "pause",
-                "&",
+                ";",
                 "exit"
             ],
             "environment": [],
@@ -75,12 +75,12 @@
             "externalConsole": true
         },
         {
-            "name": "C++: Run with Debugging",
+            "name": "C: Run with Debugging (Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "preLaunchTask": "build C++ file",
+            "preLaunchTask": "build C file",
             "cwd": "${fileDirname}",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "${fileDirname}\\${fileBasenameNoExtension}",
             "args": [],
             "environment": [],
             "stopAtEntry": false,
@@ -117,6 +117,7 @@
             "program": "${fileDirname}\\${fileBasename}",
             "args": [],
             "console": "externalTerminal"
-        }
+        },
+
     ]
 }
